@@ -1,0 +1,43 @@
+version: '3'
+services:
+  postgres:
+    container_name: 'postgres'
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./docker-pg-init-scripts:/docker-entrypoint-initdb.d
+# if you want to save pg data
+      # - pgdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+  postgres-client:
+    container_name: 'postgres-client'
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "couple@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "couple"
+    ports:
+      - "16543:80"
+    depends_on:
+      - postgres
+  redis:
+    container_name: 'redis'
+    image: redis
+    command: redis-server 
+    restart: always
+# if you want to save redis data
+#    volumes:
+#      - ./redis-data:/data
+    ports:
+      - "6380:6379"
+  backend:
+    image: 'couple-go'
+    container_name: 'couple-go'
+    build: ./
+    restart: always
+    ports:
+    - "8080:8080"
+    depends_on:
+      - postgres
+      - redis

@@ -1,0 +1,211 @@
+basePath: /v1
+definitions:
+  api.InviteRequest:
+    properties:
+      invitee_email:
+        type: string
+      inviter_id:
+        type: string
+    type: object
+  api.InviteResponse:
+    properties:
+      create_time:
+        type: string
+      id:
+        type: integer
+      invitation_token:
+        type: string
+      invitee_email:
+        type: string
+      inviter_id:
+        type: string
+      is_accepted:
+        type: boolean
+    type: object
+  api.VerifyEmailResponse:
+    properties:
+      is_email_verified:
+        type: boolean
+    type: object
+  api.createUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  api.invitedUserSignUpRequest:
+    properties:
+      invitation_id:
+        type: integer
+      invitation_token:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  api.invitedUserSignUpResponse:
+    properties:
+      create_at:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  api.loginUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  api.loginUserResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      session_id:
+        type: string
+      user:
+        $ref: '#/definitions/api.userResponse'
+    type: object
+  api.userResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password_changed_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Johnson Lee
+  title: Couple Website API
+  version: "1.0"
+paths:
+  /invite:
+    post:
+      description: Invite new user to create a pair
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Invite User
+        in: body
+        name: invite_info
+        required: true
+        schema:
+          $ref: '#/definitions/api.InviteRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.InviteResponse'
+      summary: Invite
+      tags:
+      - invite
+  /users/invitee_signup:
+    post:
+      description: for invitee to sign up
+      parameters:
+      - description: Create User
+        in: body
+        name: signup_info
+        required: true
+        schema:
+          $ref: '#/definitions/api.invitedUserSignUpRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.invitedUserSignUpResponse'
+      summary: Invitee SignUp
+      tags:
+      - users
+  /users/login:
+    post:
+      description: Login to an user account
+      parameters:
+      - description: Login User
+        in: body
+        name: login_info
+        required: true
+        schema:
+          $ref: '#/definitions/api.loginUserRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.loginUserResponse'
+      summary: Login
+      tags:
+      - users
+  /users/signup:
+    post:
+      description: Create a new user account
+      parameters:
+      - description: Create User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.userResponse'
+        "400":
+          description: Bad Request
+      summary: SignUp
+      tags:
+      - users
+  /verify/verify_email:
+    get:
+      description: Verify the email of created account.
+      parameters:
+      - in: query
+        name: email_id
+        required: true
+        type: integer
+      - in: query
+        name: secret_code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.VerifyEmailResponse'
+      summary: Verify email
+      tags:
+      - verify
+swagger: "2.0"

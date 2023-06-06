@@ -1,0 +1,10 @@
+CREATE DATABASE couple_db with ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1 template=template0;
+ALTER DATABASE couple_db OWNER TO couple_admin;
+ALTER DATABASE couple_db SET timezone TO 'UTC';
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+GRANT USAGE ON SCHEMA public to couple_admin;
+GRANT CREATE ON SCHEMA public to couple_admin;
+GRANT USAGE ON SCHEMA public to couple_user;
+GRANT USAGE ON SEQUENCE verify_emails_id_seq TO couple_user;
+GRANT USAGE ON SCHEMA public to couple_readonly;
