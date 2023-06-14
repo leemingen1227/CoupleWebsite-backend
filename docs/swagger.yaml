@@ -59,6 +59,21 @@ definitions:
     - name
     - password
     type: object
+  api.getBlogResponse:
+    properties:
+      blog_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      image_url:
+        type: string
+      pair_id:
+        type: integer
+      title:
+        type: string
+    type: object
   api.invitedUserSignUpRequest:
     properties:
       invitation_id:
@@ -154,6 +169,28 @@ paths:
           schema:
             $ref: '#/definitions/api.createBlogResponse'
       summary: Create Blog
+      tags:
+      - blogs
+  /blogs/{blogID}:
+    get:
+      description: Get a blog
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Blog ID
+        in: path
+        name: blogID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.getBlogResponse'
+      summary: Get Blog
       tags:
       - blogs
   /invite:

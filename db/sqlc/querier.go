@@ -19,6 +19,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUsersPair(ctx context.Context, arg CreateUsersPairParams) (UserPair, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
+	GetBlog(ctx context.Context, id uuid.UUID) (Blog, error)
 	GetInvitation(ctx context.Context, id int64) (Invitation, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetUser(ctx context.Context, id uuid.UUID) (User, error)

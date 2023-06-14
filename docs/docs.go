@@ -65,6 +65,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/blogs/{blogID}": {
+            "get": {
+                "description": "Get a blog",
+                "tags": [
+                    "blogs"
+                ],
+                "summary": "Get Blog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Blog ID",
+                        "name": "blogID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.getBlogResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invite": {
             "post": {
                 "description": "Invite new user to create a pair",
@@ -305,6 +338,29 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 6
+                }
+            }
+        },
+        "api.getBlogResponse": {
+            "type": "object",
+            "properties": {
+                "blog_id": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "pair_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

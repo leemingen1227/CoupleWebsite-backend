@@ -48,3 +48,24 @@ func (q *Queries) CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, e
 	)
 	return i, err
 }
+
+const getBlog = `-- name: GetBlog :one
+SELECT id, user_id, pair_id, title, content, picture, create_time, update_time FROM blog
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetBlog(ctx context.Context, id uuid.UUID) (Blog, error) {
+	row := q.db.QueryRowContext(ctx, getBlog, id)
+	var i Blog
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PairID,
+		&i.Title,
+		&i.Content,
+		&i.Picture,
+		&i.CreateTime,
+		&i.UpdateTime,
+	)
+	return i, err
+}
