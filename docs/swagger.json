@@ -10,6 +10,53 @@
     "host": "localhost:8080",
     "basePath": "/v1",
     "paths": {
+        "/blogs": {
+            "post": {
+                "description": "Create a new blog",
+                "tags": [
+                    "blogs"
+                ],
+                "summary": "Create Blog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Blog Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Blog Content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Blog Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.createBlogResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invite": {
             "post": {
                 "description": "Invite new user to create a pair",
@@ -204,6 +251,29 @@
             "properties": {
                 "is_email_verified": {
                     "type": "boolean"
+                }
+            }
+        },
+        "api.createBlogResponse": {
+            "type": "object",
+            "properties": {
+                "blog_id": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "pair_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },

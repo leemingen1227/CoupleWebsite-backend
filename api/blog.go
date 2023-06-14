@@ -43,8 +43,10 @@ func newBlogResponse(blog db.Blog, imageUrl string) createBlogResponse {
 // @Summary      Create Blog
 // @Description  Create a new blog
 // @Tags         blogs
-// @Accept mpfd
-// @Param        blog_info body api.createBlogRequest true "Create Blog"
+// @Param        Authorization     header    string     true   "Bearer token"
+// @Param title formData string true "Blog Title"
+// @Param content formData string true "Blog Content"
+// @Param image formData file true "Blog Image"
 // @Success      200  {object}  api.createBlogResponse
 // @Router       /blogs [post]
 func (server *Server) createBlog(ctx *gin.Context) {

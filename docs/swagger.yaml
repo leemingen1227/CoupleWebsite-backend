@@ -27,6 +27,21 @@ definitions:
       is_email_verified:
         type: boolean
     type: object
+  api.createBlogResponse:
+    properties:
+      blog_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      image_url:
+        type: string
+      pair_id:
+        type: integer
+      title:
+        type: string
+    type: object
   api.createUserRequest:
     properties:
       email:
@@ -109,6 +124,38 @@ info:
   title: Couple Website API
   version: "1.0"
 paths:
+  /blogs:
+    post:
+      description: Create a new blog
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Blog Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Blog Content
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Blog Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.createBlogResponse'
+      summary: Create Blog
+      tags:
+      - blogs
   /invite:
     post:
       description: Invite new user to create a pair
