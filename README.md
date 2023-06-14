@@ -30,7 +30,7 @@
 
   此為Golang的Backend Service。
 
-  可打開URL：http://localhost:8080/swagger/index.html，利用Swagger框架打造RESTful API，可透過該框架直接測試API。
+  可打開URL：http://localhost:8080/swagger/index.html ，利用Swagger框架打造RESTful API，可透過該框架直接測試API。
 
 
 ### 檢查環境變數是否一致
