@@ -11,6 +11,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type Blog struct {
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"user_id"`
+	PairID     int64     `json:"pair_id"`
+	Title      string    `json:"title"`
+	Content    string    `json:"content"`
+	Picture    string    `json:"picture"`
+	CreateTime time.Time `json:"create_time"`
+	UpdateTime time.Time `json:"update_time"`
+}
+
 type Invitation struct {
 	ID              int64     `json:"id"`
 	InviterID       uuid.UUID `json:"inviter_id"`

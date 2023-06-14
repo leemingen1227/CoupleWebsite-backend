@@ -71,6 +71,12 @@ func (server *Server) setupRouter() {
 		{
 			inviteRouter.POST("/", server.createInvitation)
 		}
+
+		blogRouter := v1Router.Group("/blogs/")
+		blogRouter.Use(authMiddleware(server.tokenMaker))
+		{
+			blogRouter.POST("/", server.createBlog)
+		}
 	}
 
 

@@ -23,6 +23,11 @@ type Config struct {
 	EmailSenderName     string `mapstructure:"EMAIL_SENDER_NAME"`
 	EmailSenderAddress  string `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword string `mapstructure:"EMAIL_SENDER_PASSWORD"`
+	//AWS config
+	AwsBucketName string `mapstructure:"AWS_BUCKET_NAME"`
+	AwsBucketRegion string `mapstructure:"AWS_BUCKET_REGION"`
+	AwsAccessKeyID string `mapstructure:"AWS_ACCESS_KEY"`
+	AwsSecretKey string `mapstructure:"AWS_SECRET_KEY"`
 }
 
 // LoadConfig loads the config from the config file and environment variables

@@ -112,6 +112,22 @@ CREATE TABLE sessions
 );
 ALTER TABLE sessions ADD FOREIGN KEY (email) REFERENCES users (email) ON DELETE CASCADE ON UPDATE CASCADE;
 
+CREATE TABLE blog
+(
+    id uuid PRIMARY KEY,
+    user_id uuid NOT NULL,
+    pair_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    picture VARCHAR(255) NOT NULL, -- This field stores the identifier of the picture in S3
+    create_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT current_timestamp,
+    update_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT current_timestamp,
+    
+    CONSTRAINT blog_pair_id_fk FOREIGN KEY (pair_id) REFERENCES pairs (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT blog_user_id_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 \connect couple_db
 /*
     grant_table_privilege
@@ -123,6 +139,7 @@ ALTER TABLE verify_emails OWNER TO couple_admin;
 ALTER TABLE invitations OWNER TO couple_admin;
 ALTER TABLE user_pairs OWNER TO couple_admin;
 ALTER TABLE sessions OWNER TO couple_admin;
+ALTER TABLE blog OWNER TO couple_admin;
 
 
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TABLE pairs to couple_user;
@@ -134,6 +151,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TABLE invitations to couple_
 GRANT USAGE ON SEQUENCE invitations_id_seq TO couple_user;
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TABLE user_pairs to couple_user;
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TABLE sessions to couple_user;
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TABLE blog to couple_user;
 
 
 GRANT SELECT ON TABLE pairs to couple_readonly;
@@ -142,3 +160,4 @@ GRANT SELECT ON TABLE verify_emails to couple_readonly;
 GRANT SELECT ON TABLE invitations to couple_readonly;
 GRANT SELECT ON TABLE user_pairs to couple_readonly;
 GRANT SELECT ON TABLE sessions to couple_readonly;
+GRANT SELECT ON TABLE blog to couple_readonly;

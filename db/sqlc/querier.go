@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, error)
 	CreateInvitation(ctx context.Context, arg CreateInvitationParams) (Invitation, error)
 	CreatePair(ctx context.Context, startDate sql.NullTime) (Pair, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
