@@ -59,7 +59,7 @@ definitions:
     - name
     - password
     type: object
-  api.getBlogResponse:
+  api.getBlogByBlogIDResponse:
     properties:
       blog_id:
         type: string
@@ -73,6 +73,19 @@ definitions:
         type: integer
       title:
         type: string
+    type: object
+  api.getBlogsByPairIDResponse:
+    properties:
+      blogs:
+        items:
+          $ref: '#/definitions/db.Blog'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
     type: object
   api.invitedUserSignUpRequest:
     properties:
@@ -132,6 +145,25 @@ definitions:
       password_changed_at:
         type: string
     type: object
+  db.Blog:
+    properties:
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: string
+      pair_id:
+        type: integer
+      picture:
+        type: string
+      title:
+        type: string
+      update_time:
+        type: string
+      user_id:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -171,7 +203,37 @@ paths:
       summary: Create Blog
       tags:
       - blogs
-  /blogs/{blogID}:
+  /blogs/{pairID}:
+    get:
+      description: Get blogs by pair id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Pair ID
+        in: path
+        name: pairID
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.getBlogsByPairIDResponse'
+      summary: Get Blogs by PairID
+      tags:
+      - blogs
+  /blogs/blog/{blogID}:
     get:
       description: Get a blog
       parameters:
@@ -189,7 +251,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.getBlogResponse'
+            $ref: '#/definitions/api.getBlogByBlogIDResponse'
       summary: Get Blog
       tags:
       - blogs

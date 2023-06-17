@@ -65,7 +65,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/blogs/{blogID}": {
+        "/blogs/blog/{blogID}": {
             "get": {
                 "description": "Get a blog",
                 "tags": [
@@ -92,7 +92,52 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.getBlogResponse"
+                            "$ref": "#/definitions/api.getBlogByBlogIDResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blogs/{pairID}": {
+            "get": {
+                "description": "Get blogs by pair id",
+                "tags": [
+                    "blogs"
+                ],
+                "summary": "Get Blogs by PairID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Pair ID",
+                        "name": "pairID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.getBlogsByPairIDResponse"
                         }
                     }
                 }
@@ -341,7 +386,7 @@ const docTemplate = `{
                 }
             }
         },
-        "api.getBlogResponse": {
+        "api.getBlogByBlogIDResponse": {
             "type": "object",
             "properties": {
                 "blog_id": {
@@ -361,6 +406,26 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "api.getBlogsByPairIDResponse": {
+            "type": "object",
+            "properties": {
+                "blogs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.Blog"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -448,6 +513,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password_changed_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Blog": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "pair_id": {
+                    "type": "integer"
+                },
+                "picture": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "update_time": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

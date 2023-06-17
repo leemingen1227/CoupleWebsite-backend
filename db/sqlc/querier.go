@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	CountBlogsByPairID(ctx context.Context, pairID int64) (int64, error)
 	CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, error)
 	CreateInvitation(ctx context.Context, arg CreateInvitationParams) (Invitation, error)
 	CreatePair(ctx context.Context, startDate sql.NullTime) (Pair, error)
@@ -19,7 +20,8 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUsersPair(ctx context.Context, arg CreateUsersPairParams) (UserPair, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
-	GetBlog(ctx context.Context, id uuid.UUID) (Blog, error)
+	GetBlogByBlogID(ctx context.Context, id uuid.UUID) (Blog, error)
+	GetBlogsByPairID(ctx context.Context, arg GetBlogsByPairIDParams) ([]Blog, error)
 	GetInvitation(ctx context.Context, id int64) (Invitation, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetUser(ctx context.Context, id uuid.UUID) (User, error)

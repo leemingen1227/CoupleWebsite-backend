@@ -114,11 +114,11 @@ func (server *Server) createBlog(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-type getBlogRequest struct {
+type getBlogByBlogIDRequest struct {
 	blogID uuid.UUID `uri:"blogID" binding:"required"`
 }
 
-type getBlogResponse struct {
+type getBlogByBlogIDResponse struct {
 	BlogID    uuid.UUID `json:"blog_id"`
 	PairID    int64     `json:"pair_id"`
 	Title     string    `json:"title"`
@@ -127,8 +127,8 @@ type getBlogResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func newGetBlogResponse(blog db.Blog, imageUrl string) getBlogResponse {
-	return getBlogResponse{
+func newGetBlogByBlogIDResponse(blog db.Blog, imageUrl string) getBlogByBlogIDResponse {
+	return getBlogByBlogIDResponse{
 		BlogID:    blog.ID,
 		PairID:    blog.PairID,
 		Title:     blog.Title,
@@ -143,9 +143,9 @@ func newGetBlogResponse(blog db.Blog, imageUrl string) getBlogResponse {
 // @Tags         blogs
 // @Param        Authorization     header    string     true   "Bearer token"
 // @Param blogID path string true "Blog ID"
-// @Success      200  {object}  api.getBlogResponse
-// @Router       /blogs/{blogID} [get]
-func (server *Server) getBlog(ctx *gin.Context) {
+// @Success      200  {object}  api.getBlogByBlogIDResponse
+// @Router       /blogs/blog/{blogID} [get]
+func (server *Server) getBlogByBlogID(ctx *gin.Context) {
 	blogIDStr := ctx.Param("blogID")
 	if blogIDStr == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Blog ID required"})
@@ -159,9 +159,7 @@ func (server *Server) getBlog(ctx *gin.Context) {
 		return
 	}
 
-
-
-	blog, err := server.store.GetBlog(ctx, blogID)
+	blog, err := server.store.GetBlogByBlogID(ctx, blogID)
 	if err != nil {
 		log.Printf("can't get blog: %v", err)
 		// log.Printf("blogID: %v", req.blogID)
@@ -184,6 +182,90 @@ func (server *Server) getBlog(ctx *gin.Context) {
 		}
 	}
 
-	rsp := newGetBlogResponse(blog, imageUrl)
+	rsp := newGetBlogByBlogIDResponse(blog, imageUrl)
+	ctx.JSON(http.StatusOK, rsp)
+}
+
+type getBlogsByPairIDRequest struct {
+	PairID   int64 `uri:"pairID" binding:"required"`
+	Page     int   `form:"page" binding:"omitempty"`
+	PageSize int   `form:"page_size" binding:"omitempty"`
+}
+
+type getBlogsByPairIDResponse struct {
+	Total    int64                     `json:"total"`
+	Page     int                       `json:"page"`
+	PageSize int                       `json:"page_size"`
+	Blogs    []getBlogByBlogIDResponse `json:"blogs"`
+}
+
+// @Summary      Get Blogs by PairID
+// @Description  Get blogs by pair id
+// @Tags         blogs
+// @Param        Authorization     header    string     true   "Bearer token"
+// @Param        pairID           path      int        true   "Pair ID"
+// @Param        page              query     int        false   "Page number"
+// @Param        page_size         query     int        false   "Page size"
+// @Success      200  {object}  api.getBlogsByPairIDResponse
+// @Router       /blogs/{pairID} [get]
+func (server *Server) getBlogsByPairID(ctx *gin.Context) {
+	var req getBlogsByPairIDRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if err := ctx.ShouldBindQuery(&req); err != nil { // Bind Page and PageSize from query parameters
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// set default values if not provided
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.PageSize == 0 {
+		req.PageSize = 3
+	}
+
+	total, err := server.store.CountBlogsByPairID(ctx, req.PairID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	offset := (req.Page - 1) * req.PageSize
+	blogs, err := server.store.GetBlogsByPairID(ctx, db.GetBlogsByPairIDParams{
+		PairID: req.PairID,
+		Limit:  int32(req.PageSize),
+		Offset: int32(offset),
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	sess, err := aws.InitAWS()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	blogs_responses := make([]getBlogByBlogIDResponse, len(blogs))
+	for i, blog := range blogs {
+		imageUrl, err := aws.GetSignedURL(sess, blog.Picture)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		blogs_responses[i] = newGetBlogByBlogIDResponse(blog, imageUrl)
+	}
+
+	rsp := getBlogsByPairIDResponse{
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Blogs:    blogs_responses,
+	}
 	ctx.JSON(http.StatusOK, rsp)
 }

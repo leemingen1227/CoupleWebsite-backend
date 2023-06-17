@@ -76,7 +76,8 @@ func (server *Server) setupRouter() {
 		blogRouter.Use(authMiddleware(server.tokenMaker))
 		{
 			blogRouter.POST("/", server.createBlog)
-			blogRouter.GET("/:blogID", server.getBlog)
+			blogRouter.GET("/blog/:blogID", server.getBlogByBlogID)
+			blogRouter.GET("/:pairID", server.getBlogsByPairID)
 		}
 	}
 

@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+const countBlogsByPairID = `-- name: CountBlogsByPairID :one
+SELECT COUNT(*) FROM blog
+WHERE pair_id = $1
+`
+
+func (q *Queries) CountBlogsByPairID(ctx context.Context, pairID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countBlogsByPairID, pairID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createBlog = `-- name: CreateBlog :one
 INSERT INTO blog (id, pair_id, user_id, title, content, picture)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -49,13 +61,13 @@ func (q *Queries) CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, e
 	return i, err
 }
 
-const getBlog = `-- name: GetBlog :one
+const getBlogByBlogID = `-- name: GetBlogByBlogID :one
 SELECT id, user_id, pair_id, title, content, picture, create_time, update_time FROM blog
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetBlog(ctx context.Context, id uuid.UUID) (Blog, error) {
-	row := q.db.QueryRowContext(ctx, getBlog, id)
+func (q *Queries) GetBlogByBlogID(ctx context.Context, id uuid.UUID) (Blog, error) {
+	row := q.db.QueryRowContext(ctx, getBlogByBlogID, id)
 	var i Blog
 	err := row.Scan(
 		&i.ID,
@@ -68,4 +80,47 @@ func (q *Queries) GetBlog(ctx context.Context, id uuid.UUID) (Blog, error) {
 		&i.UpdateTime,
 	)
 	return i, err
+}
+
+const getBlogsByPairID = `-- name: GetBlogsByPairID :many
+SELECT id, user_id, pair_id, title, content, picture, create_time, update_time FROM blog
+WHERE pair_id = $1 ORDER BY create_time DESC LIMIT $2 OFFSET $3
+`
+
+type GetBlogsByPairIDParams struct {
+	PairID int64 `json:"pair_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetBlogsByPairID(ctx context.Context, arg GetBlogsByPairIDParams) ([]Blog, error) {
+	rows, err := q.db.QueryContext(ctx, getBlogsByPairID, arg.PairID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Blog{}
+	for rows.Next() {
+		var i Blog
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.PairID,
+			&i.Title,
+			&i.Content,
+			&i.Picture,
+			&i.CreateTime,
+			&i.UpdateTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
