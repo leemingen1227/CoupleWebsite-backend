@@ -177,6 +177,21 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
+	//set the cookie
+	// Set the session ID as a cookie in the response
+	cookie := &http.Cookie{
+		Name:     "session_id",
+		Value:    session.ID.String(),
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge:   int(session.ExpiresAt.Sub(time.Now()).Seconds()),
+		SameSite: http.SameSiteStrictMode,
+		Secure:   false, // Set to true if using HTTPS
+	}
+
+	http.SetCookie(ctx.Writer, cookie)
+
+
 	rsp := loginUserResponse{
 		SessionID:             session.ID,
 		AccessToken:           accessToken,

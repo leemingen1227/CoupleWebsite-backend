@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/hibiken/asynq"
 	"github.com/leemingen1227/couple-server/api"
@@ -14,6 +15,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/net/context"
 )
 
 func main(){
@@ -34,16 +36,27 @@ func main(){
 	//run the migration
 	//runDBMigration(config.MigrationURL, config.DBSource)
 
+	//connect to redis for cache
+	redisOptions := redis.Options{
+		Addr: config.RedisAddress,
+	}
+	ctx := context.Background()
+	redisClient := redis.NewClient(&redisOptions)
+	_, err = redisClient.Ping(ctx).Result()
+	if err != nil {
+		log.Fatal().Msg("Redis connection initialization failed:" + err.Error())
+	}
+
 	store := db.NewStore(conn)
 
-	//connect to redis
-	redisOpt := asynq.RedisClientOpt{
+	//connect to redis for asynq
+	asynqRedisOpt := asynq.RedisClientOpt{
 		Addr: config.RedisAddress,
 	}
 
-	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
-	go runTaskProcessor(config, redisOpt, store)
-	runGinServer(config, store, taskDistributor)
+	taskDistributor := worker.NewRedisTaskDistributor(asynqRedisOpt)
+	go runTaskProcessor(config, asynqRedisOpt, store)
+	runGinServer(config, store, taskDistributor, redisClient)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
@@ -69,8 +82,8 @@ func runTaskProcessor(config util.Config, redisOpt asynq.RedisClientOpt, store d
 	}
 }
 
-func runGinServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor) {
-    server, err := api.NewServer(config, store, taskDistributor)
+func runGinServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor, redisClient *redis.Client) {
+    server, err := api.NewServer(config, store, taskDistributor, redisClient)
     if err != nil {
         log.Fatal().Msg("cannot create server:")
     }

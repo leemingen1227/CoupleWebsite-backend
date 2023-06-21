@@ -11,6 +11,7 @@ import (
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/files"
 	_ "github.com/leemingen1227/couple-server/docs"
+	"github.com/go-redis/redis/v8"
 )
 
 type Server struct {
@@ -19,9 +20,10 @@ type Server struct {
 	tokenMaker       token.Maker
 	router           *gin.Engine
 	taskDirstributor worker.TaskDistributor
+	redisClient 	*redis.Client
 }
 
-func NewServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
+func NewServer(config util.Config, store db.Store, taskDistributor worker.TaskDistributor, redisClient *redis.Client) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
@@ -31,6 +33,7 @@ func NewServer(config util.Config, store db.Store, taskDistributor worker.TaskDi
 		store:            store,
 		tokenMaker:       tokenMaker,
 		taskDirstributor: taskDistributor,
+		redisClient:	  redisClient,
 	}
 
 	// if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -67,13 +70,13 @@ func (server *Server) setupRouter() {
 		}
 
 		inviteRouter := v1Router.Group("/invite/")
-		inviteRouter.Use(authMiddleware(server.tokenMaker))
+		inviteRouter.Use(authMiddleware(server.tokenMaker, server.store, server.config, server.redisClient))
 		{
 			inviteRouter.POST("/", server.createInvitation)
 		}
 
 		blogRouter := v1Router.Group("/blogs/")
-		blogRouter.Use(authMiddleware(server.tokenMaker))
+		blogRouter.Use(authMiddleware(server.tokenMaker, server.store, server.config, server.redisClient))
 		{
 			blogRouter.POST("/", server.createBlog)
 			blogRouter.GET("/blog/:blogID", server.getBlogByBlogID)
