@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	// "fmt"
 	"time"
 
 	"net/http"
@@ -24,6 +25,7 @@ type createUserRequest struct {
 
 // userResponse is the response body for the CreateUser handler.
 type userResponse struct {
+	ID 	   uuid.UUID `json:"id"`
 	Email      string    `json:"email"`
 	Name       string    `json:"name"`
 	UpdateTime time.Time `json:"password_changed_at"`
@@ -33,6 +35,7 @@ type userResponse struct {
 // new userResponse constructs a userResponse from a User.
 func newUserResponse(user db.User) userResponse {
 	return userResponse{
+		ID:         user.ID,
 		Email:      user.Email,
 		Name:       user.Name,
 		UpdateTime: user.UpdateTime,

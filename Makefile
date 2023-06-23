@@ -19,8 +19,11 @@ sqlc:
 server:
 	go run main.go	
 
-mock:
+mockStore:
 	mockgen -package mockdb -destination db/mock/store.go github.com/leemingen1227/couple-server/db/sqlc Store
 
-.PHONY: migrateup migrateup1 migratedown migratedown1 sqlc server mock
+mockDistributor:
+	mockgen -package mockwk -destination worker/mock/distributor.go github.com/leemingen1227/couple-server/worker TaskDistributor
+
+.PHONY: migrateup migrateup1 migratedown migratedown1 sqlc server mockStore mockDistributor
 
